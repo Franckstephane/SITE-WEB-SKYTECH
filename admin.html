@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin SkyTech — Tableau de bord</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    body { background: #f0f2f5; font-family: Arial, sans-serif; }
+
+    .topbar {
+      background: linear-gradient(120deg, #0f2027, #203a43, #2c5364);
+      color: white;
+      padding: 18px 30px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .topbar h1 { font-size: 1.3rem; margin: 0; font-weight: 700; }
+    .topbar span { opacity: 0.7; font-size: 0.9rem; }
+
+    .stat-card {
+      background: white;
+      border-radius: 14px;
+      padding: 24px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.07);
+      text-align: center;
+    }
+
+    .stat-card .number { font-size: 2.2rem; font-weight: 800; color: #2c5364; }
+    .stat-card .label  { color: #888; font-size: 0.9rem; margin-top: 4px; }
+
+    .card-section {
+      background: white;
+      border-radius: 14px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.07);
+      overflow: hidden;
+    }
+
+    .card-section .card-header {
+      background: #2c5364;
+      color: white;
+      padding: 14px 20px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    table thead { background: #f8f9fa; }
+    table thead th { font-size: 0.82rem; text-transform: uppercase; color: #666; letter-spacing: 0.5px; }
+
+    .badge-nouveau  { background: #dcfce7; color: #16a34a; padding: 4px 10px; border-radius: 20px; font-size: 0.78rem; font-weight: 700; }
+    .badge-lu       { background: #f1f5f9; color: #64748b; padding: 4px 10px; border-radius: 20px; font-size: 0.78rem; }
+
+    .btn-marquer {
+      border: none;
+      background: #e0f2fe;
+      color: #0284c7;
+      border-radius: 8px;
+      padding: 5px 12px;
+      font-size: 0.82rem;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    .btn-marquer:hover { background: #0284c7; color: white; }
+
+    .btn-supprimer {
+      border: none;
+      background: #fee2e2;
+      color: #dc2626;
+      border-radius: 8px;
+      padding: 5px 12px;
+      font-size: 0.82rem;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    .btn-supprimer:hover { background: #dc2626; color: white; }
+
+    .empty-state { text-align: center; padding: 40px; color: #aaa; }
+    .empty-state .icon { font-size: 3rem; margin-bottom: 10px; }
+
+    .loading { text-align: center; padding: 40px; }
+    .spinner { width: 36px; height: 36px; border: 4px solid #e2e8f0; border-top-color: #2c5364; border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 12px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .alerte-config {
+      background: #fff7ed;
+      border: 1px solid #fed7aa;
+      border-radius: 12px;
+      padding: 16px 20px;
+      color: #c2410c;
+      font-size: 0.92rem;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- TOP BAR -->
+  <div class="topbar">
+    <h1>⚙️ SkyTech — Admin</h1>
+    <span id="dateHeure"></span>
+  </div>
+
+  <div class="container py-4">
+
+    <!-- ALERTE CONFIG -->
+    <div class="alerte-config mb-4" id="alerteConfig" style="display:none;">
+      ⚠️ <strong>Supabase non configuré.</strong> Ouvrez <code>script.js</code> et remplacez
+      <code>SUPABASE_URL</code> et <code>SUPABASE_KEY</code> par vos vraies clés.
+      Les données ci-dessous viennent du <strong>localStorage</strong> (données locales).
+    </div>
+
+    <!-- STATS -->
+    <div class="row g-3 mb-4" id="statsRow">
+      <div class="col-6 col-md-3">
+        <div class="stat-card">
+          <div class="number" id="statTotal">—</div>
+          <div class="label">Demandes totales</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="stat-card">
+          <div class="number" id="statNouveau">—</div>
+          <div class="label">Non lues</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="stat-card">
+          <div class="number" id="statAujourdhui">—</div>
+          <div class="label">Aujourd'hui</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="stat-card">
+          <div class="number" id="statServices">—</div>
+          <div class="label">Services différents</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TABLE DEVIS -->
+    <div class="card-section">
+      <div class="card-header">
+        <span>📋 Demandes de devis</span>
+        <button class="btn btn-sm btn-light" onclick="chargerDevis()">🔄 Actualiser</button>
+      </div>
+
+      <div id="contenuTable">
+        <div class="loading">
+          <div class="spinner"></div>
+          <div>Chargement des données...</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    // ── Config Supabase (même que script.js) ──────────────────────────
+    const SUPABASE_URL = "https://lehzfplwzvatviasqlpm.supabase.co";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxlaHpmcGx3enZhdHZpYXNxbHBtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkxNzc1NjIsImV4cCI6MjA5NDc1MzU2Mn0.ort5PmxtiokaSkiyEDCBApRKs4s51vin2kqQDZbywNo";           // ← remplacez
+
+    let db = null;
+    let modeSupabase = false;
+
+    function initAdmin() {
+      // Horloge
+      setInterval(() => {
+        const now = new Date();
+        document.getElementById("dateHeure").textContent =
+          now.toLocaleDateString("fr-FR") + " " + now.toLocaleTimeString("fr-FR");
+      }, 1000);
+
+      // Tenter connexion Supabase
+      if (!SUPABASE_URL.includes("VOTRE_ID") && typeof window.supabase !== "undefined") {
+        db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        modeSupabase = true;
+      } else {
+        document.getElementById("alerteConfig").style.display = "block";
+      }
+
+      chargerDevis();
+    }
+
+    async function chargerDevis() {
+      document.getElementById("contenuTable").innerHTML = `
+        <div class="loading">
+          <div class="spinner"></div>
+          <div>Chargement...</div>
+        </div>`;
+
+      let devis = [];
+
+      if (modeSupabase && db) {
+        // ── Lecture depuis Supabase ──
+        const { data, error } = await db
+          .from("devis")
+          .select("*")
+          .order("created_at", { ascending: false });
+
+        if (error) {
+          console.error("Erreur Supabase:", error.message);
+          devis = lireLocalStorage();
+        } else {
+          devis = data || [];
+        }
+      } else {
+        // ── Fallback localStorage ──
+        devis = lireLocalStorage();
+      }
+
+      afficherStats(devis);
+      afficherTable(devis);
+    }
+
+    function lireLocalStorage() {
+      return JSON.parse(localStorage.getItem("devis") || "[]").map((d, i) => ({
+        id: i,
+        nom: d.nom,
+        email: d.email,
+        service: d.service,
+        message: d.message,
+        lu: false,
+        created_at: d.createdAt || new Date().toISOString(),
+      }));
+    }
+
+    function afficherStats(devis) {
+      const aujourd_hui = new Date().toDateString();
+      const nonLus = devis.filter(d => !d.lu).length;
+      const today  = devis.filter(d => new Date(d.created_at).toDateString() === aujourd_hui).length;
+      const services = new Set(devis.map(d => d.service?.trim()).filter(Boolean)).size;
+
+      document.getElementById("statTotal").textContent    = devis.length;
+      document.getElementById("statNouveau").textContent  = nonLus;
+      document.getElementById("statAujourdhui").textContent = today;
+      document.getElementById("statServices").textContent = services;
+    }
+
+    function afficherTable(devis) {
+      if (devis.length === 0) {
+        document.getElementById("contenuTable").innerHTML = `
+          <div class="empty-state">
+            <div class="icon">📭</div>
+            <div>Aucune demande de devis pour le moment.</div>
+          </div>`;
+        return;
+      }
+
+      const lignes = devis.map((d, i) => {
+        const date = d.created_at
+          ? new Date(d.created_at).toLocaleDateString("fr-FR", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })
+          : "—";
+
+        const badge = d.lu
+          ? `<span class="badge-lu">Lu</span>`
+          : `<span class="badge-nouveau">Nouveau</span>`;
+
+        return `
+          <tr>
+            <td>${d.nom || "—"}</td>
+            <td><a href="mailto:${d.email}">${d.email || "—"}</a></td>
+            <td>${d.service || "—"}</td>
+            <td style="max-width:220px; font-size:0.88rem; color:#555">${d.message || "—"}</td>
+            <td>${badge}</td>
+            <td style="font-size:0.82rem; color:#888">${date}</td>
+            <td>
+              ${!d.lu && modeSupabase ? `<button class="btn-marquer me-1" onclick="marquerLu(${d.id})">✓ Lu</button>` : ""}
+              ${modeSupabase ? `<button class="btn-supprimer" onclick="supprimerDevis(${d.id})">🗑</button>` : ""}
+            </td>
+          </tr>`;
+      }).join("");
+
+      document.getElementById("contenuTable").innerHTML = `
+        <div class="table-responsive">
+          <table class="table table-hover mb-0">
+            <thead>
+              <tr>
+                <th>Nom</th>
+                <th>Email</th>
+                <th>Service</th>
+                <th>Message</th>
+                <th>Statut</th>
+                <th>Date</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>${lignes}</tbody>
+          </table>
+        </div>`;
+    }
+
+    async function marquerLu(id) {
+      if (!db) return;
+      await db.from("devis").update({ lu: true }).eq("id", id);
+      chargerDevis();
+    }
+
+    async function supprimerDevis(id) {
+      if (!db) return;
+      if (!confirm("Supprimer cette demande ?")) return;
+      await db.from("devis").delete().eq("id", id);
+      chargerDevis();
+    }
+
+    initAdmin();
+  </script>
+</body>
+</html>

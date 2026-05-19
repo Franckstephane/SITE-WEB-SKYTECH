@@ -1,0 +1,114 @@
+body{
+font-family: Arial;
+background:#f5f7fa;
+}
+
+/* HERO */
+.hero{
+background: linear-gradient(120deg,#0f2027,#203a43,#2c5364);
+color:white;
+padding:120px 20px;
+text-align:center;
+animation: fadeIn 1.5s ease-in-out;
+}
+
+/* SECTION */
+.section{
+padding:80px 20px;
+}
+
+/* FOOTER */
+.footer{
+background:#111;
+color:white;
+padding:30px;
+text-align:center;
+}
+
+/* SERVICE CARD PRO */
+.service-card{
+background:white;
+padding:40px 20px;
+border-radius:15px;
+transition:0.4s;
+box-shadow:0 10px 20px rgba(0,0,0,0.1);
+cursor:pointer;
+}
+
+.service-card:hover{
+transform:translateY(-15px) scale(1.03);
+box-shadow:0 20px 40px rgba(0,0,0,0.2);
+}
+
+.service-card h4{
+font-weight:bold;
+margin-top:10px;
+}
+
+.service-card p{
+color:#555;
+font-size:14px;
+}
+
+/* ICON */
+.icon{
+font-size:40px;
+margin-bottom:15px;
+}
+
+/* ANIMATION */
+@keyframes fadeIn{
+from{
+opacity:0;
+transform:translateY(20px);
+}
+to{
+opacity:1;
+transform:translateY(0);
+}
+}
+
+/* CARTES DETAILS */
+.detail-card{
+background:white;
+padding:20px;
+border-radius:15px;
+text-align:center;
+box-shadow:0 5px 15px rgba(0,0,0,0.1);
+transition:0.3s;
+}
+
+.detail-card:hover{
+transform:translateY(-8px);
+box-shadow:0 15px 25px rgba(0,0,0,0.2);
+}
+
+.detail-icon{
+font-size:35px;
+margin-bottom:10px;
+}
+
+.detail-price{
+margin-top:10px;
+font-weight:bold;
+color:#2c5364;
+}
+
+/* WHATSAPP PRO */
+.whatsapp-btn{
+position:fixed;
+bottom:20px;
+right:20px;
+background:#25D366;
+color:white;
+font-size:25px;
+padding:15px;
+border-radius:50%;
+text-decoration:none;
+box-shadow:0 5px 15px rgba(0,0,0,0.3);
+transition:0.3s;
+}
+
+.whatsapp-btn:hover{
+transform:scale(1.1);
+}

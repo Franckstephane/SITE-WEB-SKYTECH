@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SkyTech — Prestation Informatique</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link rel="stylesheet" href="style.css">
+<style>
+:root {
+  --bleu: #1a73e8;
+  --violet: #7c3aed;
+  --cyan: #06b6d4;
+  --orange: #f97316;
+  --vert: #10b981;
+  --dark: #0a0f1e;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'DM Sans', sans-serif; background: #f8faff; overflow-x: hidden; }
+
+/* NAVBAR */
+.navbar-sky {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 999;
+  background: rgba(10,15,30,0.95); backdrop-filter: blur(12px);
+  padding: 14px 0; transition: 0.3s;
+}
+.navbar-sky .brand { font-family:'Syne',sans-serif; font-weight:800; font-size:1.5rem; color:white; text-decoration:none; }
+.brand span { color: var(--cyan); }
+.nav-links a { color:rgba(255,255,255,0.75); text-decoration:none; margin-left:28px; font-size:0.9rem; font-weight:500; transition:color 0.2s; }
+.nav-links a:hover { color: var(--cyan); }
+.btn-nav { background:var(--bleu) !important; color:white !important; padding:8px 20px; border-radius:50px; font-weight:600 !important; }
+.btn-nav:hover { background:var(--cyan) !important; }
+
+/* HERO */
+.hero { min-height:100vh; background:var(--dark); display:flex; align-items:center; position:relative; overflow:hidden; padding:100px 0 60px; }
+.hero-bg { position:absolute; inset:0; background: radial-gradient(ellipse 60% 50% at 70% 50%,rgba(124,58,237,0.25) 0%,transparent 60%), radial-gradient(ellipse 40% 40% at 20% 80%,rgba(6,182,212,0.2) 0%,transparent 50%); }
+.hero-grid { position:absolute; inset:0; background-image:linear-gradient(rgba(255,255,255,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.03) 1px,transparent 1px); background-size:50px 50px; }
+.hero-badge { display:inline-flex; align-items:center; gap:8px; background:rgba(6,182,212,0.15); border:1px solid rgba(6,182,212,0.3); color:var(--cyan); padding:6px 16px; border-radius:50px; font-size:0.82rem; font-weight:500; margin-bottom:24px; }
+.hero h1 { font-family:'Syne',sans-serif; font-size:clamp(2.2rem,5vw,3.8rem); font-weight:800; color:white; line-height:1.1; margin-bottom:20px; }
+.hero h1 .highlight { background:linear-gradient(135deg,var(--cyan),var(--bleu)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+.hero p { color:rgba(255,255,255,0.65); font-size:1.1rem; line-height:1.7; max-width:520px; margin-bottom:36px; }
+.hero-btns { display:flex; gap:14px; flex-wrap:wrap; }
+.btn-hero-primary { background:linear-gradient(135deg,var(--bleu),var(--violet)); color:white; padding:14px 32px; border-radius:50px; font-weight:600; text-decoration:none; font-size:1rem; transition:0.3s; border:none; display:inline-flex; align-items:center; gap:8px; }
+.btn-hero-primary:hover { transform:translateY(-2px); box-shadow:0 10px 30px rgba(26,115,232,0.4); color:white; }
+.btn-hero-secondary { background:transparent; color:white; padding:14px 32px; border-radius:50px; font-weight:600; text-decoration:none; font-size:1rem; transition:0.3s; border:1px solid rgba(255,255,255,0.25); display:inline-flex; align-items:center; gap:8px; }
+.btn-hero-secondary:hover { background:rgba(255,255,255,0.1); color:white; }
+.hero-stats { display:flex; gap:32px; margin-top:48px; padding-top:32px; border-top:1px solid rgba(255,255,255,0.1); }
+.hero-stat .num { font-family:'Syne',sans-serif; font-size:1.8rem; font-weight:800; color:white; }
+.hero-stat .num span { color:var(--cyan); }
+.hero-stat .lab { color:rgba(255,255,255,0.5); font-size:0.82rem; margin-top:2px; }
+.hero-visual { position:relative; display:flex; align-items:center; justify-content:center; height:450px; }
+.hero-card-float { position:absolute; background:rgba(255,255,255,0.07); backdrop-filter:blur(10px); border:1px solid rgba(255,255,255,0.12); border-radius:16px; padding:16px 20px; color:white; font-size:0.85rem; animation:float 4s ease-in-out infinite; }
+.hero-card-float:nth-child(1){top:40px;left:0;animation-delay:0s}
+.hero-card-float:nth-child(2){top:150px;right:0;animation-delay:1s}
+.hero-card-float:nth-child(3){bottom:80px;left:30px;animation-delay:2s}
+.hero-card-float .icon { font-size:1.5rem; margin-bottom:6px; }
+.hero-card-float .title { font-weight:600; font-size:0.9rem; }
+.hero-card-float .sub { color:rgba(255,255,255,0.55); font-size:0.78rem; }
+.hero-circle { width:220px; height:220px; border-radius:50%; background:linear-gradient(135deg,var(--violet),var(--bleu)); display:flex; align-items:center; justify-content:center; font-size:5rem; box-shadow:0 0 80px rgba(124,58,237,0.4); animation:pulse 3s ease-in-out infinite; }
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+@keyframes pulse{0%,100%{box-shadow:0 0 80px rgba(124,58,237,0.4)}50%{box-shadow:0 0 120px rgba(124,58,237,0.7)}}
+
+/* SECTIONS */
+.section-label { display:inline-block; background:linear-gradient(135deg,rgba(26,115,232,0.1),rgba(124,58,237,0.1)); color:var(--bleu); padding:6px 16px; border-radius:50px; font-size:0.82rem; font-weight:600; margin-bottom:14px; border:1px solid rgba(26,115,232,0.2); }
+.section-title { font-family:'Syne',sans-serif; font-size:clamp(1.8rem,3vw,2.4rem); font-weight:800; color:var(--dark); margin-bottom:12px; }
+.section-sub { color:#6b7280; font-size:1rem; max-width:520px; margin:0 auto; line-height:1.7; }
+
+/* SERVICES */
+.section-services { padding:100px 0; background:#f8faff; }
+.service-card-new { background:white; border-radius:20px; padding:32px 24px; border:1px solid #e8edf5; cursor:pointer; transition:0.35s; position:relative; overflow:hidden; height:100%; }
+.service-card-new::before { content:''; position:absolute; top:0; left:0; right:0; height:4px; background:linear-gradient(135deg,var(--c1),var(--c2)); transform:scaleX(0); transition:transform 0.3s; }
+.service-card-new:hover::before { transform:scaleX(1); }
+.service-card-new:hover { transform:translateY(-8px); box-shadow:0 20px 50px rgba(0,0,0,0.1); border-color:transparent; }
+.service-icon-wrap { width:60px; height:60px; border-radius:16px; display:flex; align-items:center; justify-content:center; font-size:1.8rem; margin-bottom:20px; }
+.service-card-new h4 { font-family:'Syne',sans-serif; font-size:1.05rem; font-weight:700; color:var(--dark); margin-bottom:10px; }
+.service-card-new p { color:#6b7280; font-size:0.9rem; line-height:1.6; margin-bottom:20px; }
+.service-link { font-size:0.85rem; font-weight:600; text-decoration:none; display:inline-flex; align-items:center; gap:6px; transition:gap 0.2s; }
+.service-link:hover { gap:10px; }
+
+/* STATS */
+.section-stats { padding:80px 0; background:var(--dark); position:relative; overflow:hidden; }
+.section-stats::before { content:''; position:absolute; inset:0; background:radial-gradient(ellipse 50% 80% at 50% 50%,rgba(124,58,237,0.15) 0%,transparent 70%); }
+.stat-box { text-align:center; padding:20px; }
+.stat-box .num { font-family:'Syne',sans-serif; font-size:3rem; font-weight:800; background:linear-gradient(135deg,var(--cyan),var(--bleu)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; display:block; }
+.stat-box .label { color:rgba(255,255,255,0.6); font-size:0.9rem; margin-top:6px; }
+
+/* POURQUOI */
+.section-why { padding:100px 0; background:white; }
+.why-card { display:flex; gap:20px; align-items:flex-start; padding:24px; border-radius:16px; border:1px solid #e8edf5; margin-bottom:16px; transition:0.3s; }
+.why-card:hover { box-shadow:0 8px 30px rgba(0,0,0,0.08); transform:translateX(6px); }
+.why-icon { width:48px; height:48px; min-width:48px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:1.4rem; }
+.why-card h5 { font-family:'Syne',sans-serif; font-weight:700; color:var(--dark); margin-bottom:6px; font-size:1rem; }
+.why-card p { color:#6b7280; font-size:0.88rem; line-height:1.6; margin:0; }
+
+/* TÉMOIGNAGES */
+.section-temoignages { padding:100px 0; background:#f8faff; }
+.temoignage-card { background:white; border-radius:20px; padding:28px; border:1px solid #e8edf5; height:100%; transition:0.3s; }
+.temoignage-card:hover { box-shadow:0 12px 40px rgba(0,0,0,0.08); transform:translateY(-4px); }
+.stars { color:#f59e0b; font-size:1rem; margin-bottom:14px; letter-spacing:2px; }
+.temoignage-card p { color:#374151; font-size:0.92rem; line-height:1.7; margin-bottom:20px; font-style:italic; }
+.temoignage-author { display:flex; align-items:center; gap:12px; }
+.author-avatar { width:42px; height:42px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:0.9rem; color:white; }
+.author-name { font-weight:600; font-size:0.9rem; color:var(--dark); }
+.author-role { font-size:0.78rem; color:#9ca3af; }
+
+/* FAQ */
+.section-faq { padding:100px 0; background:white; }
+.faq-item { border:1px solid #e8edf5; border-radius:14px; margin-bottom:12px; overflow:hidden; transition:0.3s; }
+.faq-item:hover { border-color:var(--bleu); }
+.faq-question { padding:20px 24px; font-weight:600; color:var(--dark); cursor:pointer; display:flex; justify-content:space-between; align-items:center; font-size:0.95rem; background:white; border:none; width:100%; text-align:left; }
+.faq-arrow { font-size:1.2rem; transition:transform 0.3s; color:var(--bleu); }
+.faq-answer { padding:0 24px; color:#6b7280; font-size:0.9rem; line-height:1.7; max-height:0; overflow:hidden; transition:max-height 0.4s ease,padding 0.3s; }
+.faq-answer.open { max-height:300px; padding:0 24px 20px; }
+.faq-arrow.open { transform:rotate(180deg); }
+
+/* DEVIS */
+.section-devis { padding:100px 0; background:var(--dark); position:relative; overflow:hidden; }
+.section-devis::before { content:''; position:absolute; inset:0; background:radial-gradient(ellipse 40% 60% at 0% 50%,rgba(6,182,212,0.15) 0%,transparent 60%),radial-gradient(ellipse 40% 60% at 100% 50%,rgba(124,58,237,0.15) 0%,transparent 60%); }
+.devis-card { background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); border-radius:24px; padding:48px; backdrop-filter:blur(10px); }
+.devis-card .section-title { color:white; }
+.devis-card .section-sub { color:rgba(255,255,255,0.6); }
+.form-control-sky { background:rgba(255,255,255,0.07) !important; border:1px solid rgba(255,255,255,0.15) !important; border-radius:12px !important; color:white !important; padding:14px 18px !important; font-size:0.95rem !important; transition:0.2s !important; }
+.form-control-sky::placeholder { color:rgba(255,255,255,0.35) !important; }
+.form-control-sky:focus { background:rgba(255,255,255,0.1) !important; border-color:var(--cyan) !important; box-shadow:0 0 0 3px rgba(6,182,212,0.15) !important; color:white !important; }
+.form-control-sky option { background:#1a1f35; color:white; }
+.btn-submit { background:linear-gradient(135deg,var(--bleu),var(--violet)); color:white; padding:15px 40px; border-radius:50px; font-weight:600; font-size:1rem; border:none; width:100%; cursor:pointer; transition:0.3s; }
+.btn-submit:hover { transform:translateY(-2px); box-shadow:0 10px 30px rgba(26,115,232,0.4); }
+
+/* FOOTER */
+footer { background:#060a15; color:rgba(255,255,255,0.6); padding:60px 0 30px; }
+.footer-brand { font-family:'Syne',sans-serif; font-size:1.5rem; font-weight:800; color:white; margin-bottom:12px; }
+.footer-brand span { color:var(--cyan); }
+.footer-links a { color:rgba(255,255,255,0.5); text-decoration:none; font-size:0.88rem; display:block; margin-bottom:10px; transition:color 0.2s; }
+.footer-links a:hover { color:var(--cyan); }
+.footer-bottom { border-top:1px solid rgba(255,255,255,0.08); margin-top:40px; padding-top:24px; font-size:0.82rem; text-align:center; }
+
+/* WHATSAPP */
+.whatsapp-btn { position:fixed; bottom:24px; right:24px; background:#25D366; color:white; font-size:1.5rem; width:58px; height:58px; border-radius:50%; text-decoration:none; display:flex; align-items:center; justify-content:center; box-shadow:0 6px 20px rgba(37,211,102,0.4); transition:0.3s; z-index:1000; }
+.whatsapp-btn:hover { transform:scale(1.12); color:white; }
+
+/* ANIMATIONS */
+.fade-up { opacity:0; transform:translateY(30px); transition:0.6s ease; }
+.fade-up.visible { opacity:1; transform:translateY(0); }
+
+@media(max-width:768px){
+  .hero { padding:120px 0 60px; }
+  .hero-visual { display:none; }
+  .hero-stats { gap:20px; }
+  .devis-card { padding:28px 20px; }
+  .nav-links { display:none; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar-sky">
+  <div class="container d-flex align-items-center justify-content-between">
+    <a href="#" class="brand">Sky<span>Tech</span></a>
+    <div class="nav-links">
+      <a href="#services">Services</a>
+      <a href="#pourquoi">Pourquoi nous</a>
+      <a href="#temoignages">Avis</a>
+      <a href="#faq">FAQ</a>
+      <a href="#devis" class="btn-nav">Devis gratuit</a>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-grid"></div>
+  <div class="container position-relative">
+    <div class="row align-items-center">
+      <div class="col-lg-6">
+        <div class="hero-badge">🚀 Prestation Informatique Professionnelle</div>
+        <h1>Votre expert <span class="highlight">informatique</span> à Abidjan</h1>
+        <p>Maintenance, création de sites web, installation logiciels, solutions téléphone, cours à domicile et bureautique. Rapide, fiable, au meilleur prix.</p>
+        <div class="hero-btns">
+          <a href="#devis" class="btn-hero-primary">Devis gratuit →</a>
+          <a href="#services" class="btn-hero-secondary">Nos services</a>
+        </div>
+        <div class="hero-stats">
+          <div class="hero-stat"><div class="num">50<span>+</span></div><div class="lab">Clients satisfaits</div></div>
+          <div class="hero-stat"><div class="num">6<span>+</span></div><div class="lab">Services proposés</div></div>
+          <div class="hero-stat"><div class="num">24<span>h</span></div><div class="lab">Délai intervention</div></div>
+        </div>
+      </div>
+      <div class="col-lg-6">
+        <div class="hero-visual">
+          <div class="hero-circle">💻</div>
+          <div class="hero-card-float">
+            <div class="icon">⚡</div>
+            <div class="title">Intervention rapide</div>
+            <div class="sub">Sous 24h à Abidjan</div>
+          </div>
+          <div class="hero-card-float">
+            <div class="icon">🛡️</div>
+            <div class="title">Service garanti</div>
+            <div class="sub">Satisfaction assurée</div>
+          </div>
+          <div class="hero-card-float">
+            <div class="icon">💬</div>
+            <div class="title">Suivi WhatsApp</div>
+            <div class="sub">Disponible 7j/7</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SERVICES -->
+<section class="section-services" id="services">
+  <div class="container">
+    <div class="text-center mb-5 fade-up">
+      <div class="section-label">Nos Services</div>
+      <h2 class="section-title">Tout ce dont vous avez besoin</h2>
+      <p class="section-sub">Des solutions informatiques complètes pour particuliers et entreprises à Abidjan.</p>
+    </div>
+    <div class="row g-4">
+      <div class="col-md-4 fade-up">
+        <div class="service-card-new" style="--c1:#1a73e8;--c2:#06b6d4" onclick="voirService('maintenance')">
+          <div class="service-icon-wrap" style="background:rgba(26,115,232,0.1)">💻</div>
+          <h4>Maintenance Informatique</h4>
+          <p>Nettoyage, réparation et optimisation complète de votre ordinateur. PC fixe ou portable.</p>
+          <a class="service-link" style="color:var(--bleu)">Voir les options →</a>
+        </div>
+      </div>
+      <div class="col-md-4 fade-up">
+        <div class="service-card-new" style="--c1:#7c3aed;--c2:#1a73e8" onclick="voirService('siteweb')">
+          <div class="service-icon-wrap" style="background:rgba(124,58,237,0.1)">🌐</div>
+          <h4>Création de Sites Web</h4>
+          <p>Sites vitrine, e-commerce et applications web modernes. Design professionnel et responsive.</p>
+          <a class="service-link" style="color:var(--violet)">Voir les options →</a>
+        </div>
+      </div>
+      <div class="col-md-4 fade-up">
+        <div class="service-card-new" style="--c1:#f97316;--c2:#f59e0b" onclick="voirService('logiciel')">
+          <div class="service-icon-wrap" style="background:rgba(249,115,22,0.1)">⚙️</div>
+          <h4>Installation Logiciels</h4>
+          <p>Windows, Pack Office, antivirus et tous vos logiciels professionnels. Installation sécurisée.</p>
+          <a class="service-link" style="color:var(--orange)">Voir les options →</a>
+        </div>
+      </div>
+      <div class="col-md-4 fade-up">
+        <div class="service-card-new" style="--c1:#06b6d4;--c2:#10b981" onclick="voirService('telephone')">
+          <div class="service-icon-wrap" style="background:rgba(6,182,212,0.1)">📱</div>
+          <h4>Solutions Téléphone</h4>
+          <p>Configuration, déblocage et optimisation de votre smartphone Android ou iPhone.</p>
+          <a class="service-link" style="color:var(--cyan)">Voir les options →</a>
+        </div>
+      </div>
+      <div class="col-md-4 fade-up">
+        <div class="service-card-new" style="--c1:#10b981;--c2:#06b6d4" onclick="voirService('domicile')">
+          <div class="service-icon-wrap" style="background:rgba(16,185,129,0.1)">🏠</div>
+          <h4>Cours à Domicile</h4>
+          <p>Formation informatique pratique chez vous. Initiation, bureautique, internet et email.</p>
+          <a class="service-link" style="color:var(--vert)">Voir les options →</a>
+        </div>
+      </div>
+      <div class="col-md-4 fade-up">
+        <div class="service-card-new" style="--c1:#7c3aed;--c2:#f97316" onclick="voirService('bureautique')">
+          <div class="service-icon-wrap" style="background:rgba(124,58,237,0.1)">📊</div>
+          <h4>Bureautique</h4>
+          <p>Maîtrisez Word, Excel, PowerPoint et les outils pro. Formation adaptée à votre niveau.</p>
+          <a class="service-link" style="color:var(--violet)">Voir les options →</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<section class="section-stats">
+  <div class="container position-relative">
+    <div class="row g-4 text-center">
+      <div class="col-6 col-md-3 fade-up"><div class="stat-box"><span class="num" id="count1">0</span><div class="label">Clients satisfaits</div></div></div>
+      <div class="col-6 col-md-3 fade-up"><div class="stat-box"><span class="num" id="count2">0</span><div class="label">Projets réalisés</div></div></div>
+      <div class="col-6 col-md-3 fade-up"><div class="stat-box"><span class="num" id="count3">0</span><div class="label">Années d'expérience</div></div></div>
+      <div class="col-6 col-md-3 fade-up"><div class="stat-box"><span class="num" id="count4">0</span><div class="label">Services disponibles</div></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- POURQUOI NOUS -->
+<section class="section-why" id="pourquoi">
+  <div class="container">
+    <div class="row align-items-center g-5">
+      <div class="col-lg-5 fade-up">
+        <div class="section-label">Pourquoi SkyTech ?</div>
+        <h2 class="section-title">Des experts à votre service</h2>
+        <p style="color:#6b7280;line-height:1.7;margin-top:12px">Nous nous engageons à vous offrir un service rapide, fiable et transparent. Votre satisfaction est notre priorité.</p>
+      </div>
+      <div class="col-lg-7 fade-up">
+        <div class="why-card">
+          <div class="why-icon" style="background:rgba(26,115,232,0.1)">⚡</div>
+          <div><h5>Intervention ultra-rapide</h5><p>Nous intervenons sous 24h à Abidjan. Diagnostic gratuit avant toute intervention payante.</p></div>
+        </div>
+        <div class="why-card">
+          <div class="why-icon" style="background:rgba(16,185,129,0.1)">🛡️</div>
+          <div><h5>Service garanti et transparent</h5><p>Devis clair avant chaque prestation. Pas de surprise sur la facture finale.</p></div>
+        </div>
+        <div class="why-card">
+          <div class="why-icon" style="background:rgba(249,115,22,0.1)">💬</div>
+          <div><h5>Suivi personnalisé par WhatsApp</h5><p>On vous accompagne étape par étape. Disponible 7j/7 pour répondre à vos questions.</p></div>
+        </div>
+        <div class="why-card">
+          <div class="why-icon" style="background:rgba(124,58,237,0.1)">💰</div>
+          <div><h5>Tarifs adaptés au marché local</h5><p>Des prix justes en FCFA, pensés pour les particuliers et PME d'Abidjan.</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TÉMOIGNAGES -->
+<section class="section-temoignages" id="temoignages">
+  <div class="container">
+    <div class="text-center mb-5 fade-up">
+      <div class="section-label">Témoignages</div>
+      <h2 class="section-title">Ce que disent nos clients</h2>
+      <p class="section-sub">La confiance de nos clients est notre meilleure récompense.</p>
+    </div>
+    <div class="row g-4">
+      <div class="col-md-4 fade-up">
+        <div class="temoignage-card">
+          <div class="stars">★★★★★</div>
+          <p>"SkyTech a réparé mon PC en moins de 24h. Service rapide, professionnel et prix honnête. Je recommande vivement !"</p>
+          <div class="temoignage-author">
+            <div class="author-avatar" style="background:linear-gradient(135deg,#1a73e8,#06b6d4)">KD</div>
+            <div><div class="author-name">Konan Didier</div><div class="author-role">Entrepreneur, Cocody</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4 fade-up">
+        <div class="temoignage-card">
+          <div class="stars">★★★★★</div>
+          <p>"Mon site e-commerce a été créé en une semaine. Design moderne, rapide et bien référencé. Excellent travail !"</p>
+          <div class="temoignage-author">
+            <div class="author-avatar" style="background:linear-gradient(135deg,#7c3aed,#f97316)">AM</div>
+            <div><div class="author-name">Aya Méité</div><div class="author-role">Commerçante, Yopougon</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4 fade-up">
+        <div class="temoignage-card">
+          <div class="stars">★★★★★</div>
+          <p>"Les cours à domicile sont très bien expliqués. J'ai appris Excel en 3 séances. Formateur patient et pédagogue."</p>
+          <div class="temoignage-author">
+            <div class="author-avatar" style="background:linear-gradient(135deg,#10b981,#06b6d4)">TB</div>
+            <div><div class="author-name">Traoré Bintou</div><div class="author-role">Secrétaire, Plateau</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="section-faq" id="faq">
+  <div class="container">
+    <div class="text-center mb-5 fade-up">
+      <div class="section-label">FAQ</div>
+      <h2 class="section-title">Questions fréquentes</h2>
+      <p class="section-sub">Tout ce que vous voulez savoir sur nos services.</p>
+    </div>
+    <div class="row justify-content-center">
+      <div class="col-lg-8 fade-up">
+        <div class="faq-item">
+          <button class="faq-question" onclick="toggleFaq(this)">Comment se déroule une intervention ? <span class="faq-arrow">▼</span></button>
+          <div class="faq-answer">Vous nous contactez via le formulaire ou WhatsApp. On vous rappelle sous 2h pour fixer un rendez-vous. Diagnostic gratuit sur place, puis devis clair avant toute intervention.</div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-question" onclick="toggleFaq(this)">Intervenez-vous à domicile ? <span class="faq-arrow">▼</span></button>
+          <div class="faq-answer">Oui ! Nous intervenons à domicile ou en entreprise sur tout Abidjan : Cocody, Yopougon, Plateau, Marcory, Treichville, Abobo et environs.</div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-question" onclick="toggleFaq(this)">Quels sont vos délais d'intervention ? <span class="faq-arrow">▼</span></button>
+          <div class="faq-answer">En général sous 24h pour les urgences. Pour les créations de sites web, comptez 3 à 7 jours selon la complexité du projet.</div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-question" onclick="toggleFaq(this)">Quels modes de paiement acceptez-vous ? <span class="faq-arrow">▼</span></button>
+          <div class="faq-answer">Nous acceptons le cash, Orange Money, Wave et MTN Mobile Money. Un acompte de 50% est demandé pour les projets web.</div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-question" onclick="toggleFaq(this)">Le devis est-il vraiment gratuit ? <span class="faq-arrow">▼</span></button>
+          <div class="faq-answer">Oui, totalement gratuit et sans engagement. Remplissez le formulaire ci-dessous et nous vous répondons sous 24h avec une estimation personnalisée.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DEVIS -->
+<section class="section-devis" id="devis">
+  <div class="container position-relative">
+    <div class="row justify-content-center">
+      <div class="col-lg-8">
+        <div class="devis-card fade-up">
+          <div class="text-center mb-4">
+            <div class="section-label" style="background:rgba(6,182,212,0.15);color:var(--cyan);border-color:rgba(6,182,212,0.3)">Devis Gratuit</div>
+            <h2 class="section-title">Décrivez votre besoin</h2>
+            <p class="section-sub">On vous répond sous 24h avec une estimation personnalisée.</p>
+          </div>
+          <form id="devisForm">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <input type="text" id="nom" class="form-control form-control-sky" placeholder="Votre nom complet" required>
+              </div>
+              <div class="col-md-6">
+                <input type="email" id="email" class="form-control form-control-sky" placeholder="Votre email" required>
+              </div>
+              <div class="col-12">
+                <select id="service" class="form-control form-control-sky" required>
+                  <option value="" disabled selected>Choisissez un service</option>
+                  <option value="Maintenance Informatique">💻 Maintenance Informatique</option>
+                  <option value="Création de site web">🌐 Création de site web</option>
+                  <option value="Installation Logiciels">⚙️ Installation Logiciels</option>
+                  <option value="Solutions Téléphone">📱 Solutions Téléphone</option>
+                  <option value="Cours à domicile">🏠 Cours à domicile</option>
+                  <option value="Bureautique">📊 Bureautique</option>
+                </select>
+              </div>
+              <div class="col-12">
+                <textarea id="message" class="form-control form-control-sky" rows="4" placeholder="Décrivez votre besoin en détail..."></textarea>
+              </div>
+              <div class="col-12">
+                <button type="submit" class="btn-submit">Envoyer ma demande →</button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="container">
+    <div class="row g-4">
+      <div class="col-md-4">
+        <div class="footer-brand">Sky<span>Tech</span></div>
+        <p style="font-size:0.88rem;line-height:1.7;margin-bottom:16px">Votre partenaire informatique de confiance à Abidjan. Disponible 7j/7.</p>
+        <a href="https://wa.me/2250715554022" target="_blank" style="color:#25D366;text-decoration:none;font-weight:600;font-size:0.9rem">📱 +225 07 15 55 40 22</a>
+      </div>
+      <div class="col-md-4">
+        <h6 style="color:white;font-weight:700;margin-bottom:16px">Services</h6>
+        <div class="footer-links">
+          <a href="#">Maintenance Informatique</a>
+          <a href="#">Création de Sites Web</a>
+          <a href="#">Installation Logiciels</a>
+          <a href="#">Solutions Téléphone</a>
+          <a href="#">Cours à Domicile</a>
+          <a href="#">Bureautique</a>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <h6 style="color:white;font-weight:700;margin-bottom:16px">Contact</h6>
+        <div class="footer-links">
+          <a href="mailto:contact@skytech.ci">📧 contact@skytech.ci</a>
+          <a href="https://wa.me/2250715554022" target="_blank">💬 WhatsApp</a>
+          <a href="#devis">📋 Demander un devis</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">© 2026 SkyTech Prestation Informatique · Abidjan, Côte d'Ivoire</div>
+  </div>
+</footer>
+
+<a href="https://wa.me/2250715554022?text=Bonjour%20SkyTech,%20je%20souhaite%20un%20devis" target="_blank" class="whatsapp-btn">💬</a>
+
+<script src="script.js"></script>
+<script>
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.15 });
+document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+
+function animateCount(id, target, suffix) {
+  const el = document.getElementById(id);
+  let current = 0;
+  const step = Math.ceil(target / 60);
+  const timer = setInterval(() => {
+    current += step;
+    if (current >= target) { current = target; clearInterval(timer); }
+    el.textContent = current + suffix;
+  }, 30);
+}
+
+const statsObserver = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      animateCount('count1', 50, '+');
+      animateCount('count2', 80, '+');
+      animateCount('count3', 3, '+');
+      animateCount('count4', 6, '');
+      statsObserver.disconnect();
+    }
+  });
+}, { threshold: 0.5 });
+const statsSection = document.querySelector('.section-stats');
+if (statsSection) statsObserver.observe(statsSection);
+
+function toggleFaq(btn) {
+  const answer = btn.nextElementSibling;
+  const arrow = btn.querySelector('.faq-arrow');
+  answer.classList.toggle('open');
+  arrow.classList.toggle('open');
+}
+</script>
+</body>
+</html>
